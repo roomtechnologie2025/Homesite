@@ -71,7 +71,7 @@ const Footer = () => {
                   href="mailto:contact@roomtech.com"
                   className="hover:text-roomtech-yellow transition-colors"
                 >
-                  contact@roomtech.com
+                  roomtechnologie2025@gmail.com
                 </a>
               </li>
               <li>
@@ -79,7 +79,7 @@ const Footer = () => {
                   href="tel:+33123456789"
                   className="hover:text-roomtech-yellow transition-colors"
                 >
-                  +33 1 23 45 67 89
+                  +253 77 08 09 80
                 </a>
               </li>
             </ul>

@@ -14,11 +14,11 @@
     <script>
       (function() {
         const theme = localStorage.getItem('theme') || 
-          (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+          (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
         if (theme === 'dark') {
-          document.documentElement.classList.add('dark');
+          document.documentElement.classList.add('light');
         } else {
-          document.documentElement.classList.remove('dark');
+          document.documentElement.classList.remove('light');
         }
       })();
     </script>
