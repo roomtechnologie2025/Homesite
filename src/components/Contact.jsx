@@ -166,7 +166,7 @@ const Contact = () => {
                     href="mailto:contact@roomtech.com"
                     className="text-roomtech-yellow hover:text-yellow-500 transition-colors"
                   >
-                    contact@roomtech.com
+                    roomtechnologie2025@gmail.com
                   </a>
                 </div>
               </div>
@@ -185,7 +185,7 @@ const Contact = () => {
                     href="tel:+33123456789"
                     className="text-roomtech-yellow hover:text-yellow-500 transition-colors"
                   >
-                    +33 1 23 45 67 89
+                    +253 77 08 09 80
                   </a>
                 </div>
               </div>
