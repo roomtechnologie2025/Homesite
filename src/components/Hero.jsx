@@ -44,7 +44,7 @@ const Hero = () => {
           transition={{ duration: 0.6 }}
           className="mb-8 flex justify-center"
         >
-          <Logo className="scale-150" />
+          <Logo className="scale-150" showText={false} />
         </motion.div>
 
         <motion.h1

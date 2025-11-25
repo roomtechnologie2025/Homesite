@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Moon, Sun, Menu, X, Globe } from 'lucide-react';
-import { useTheme } from './ThemeProvider';
+import { useTheme } from '../hooks/useTheme';
 import Logo from './Logo';
 
 const Header = () => {

@@ -360,7 +360,7 @@ const Contact = () => {
                 visible: { opacity: 1, x: 0 },
               }}
               whileHover={{ y: -4, scale: 1.02 }}
-              className="bg-gray-50 dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 shadow-md hover:shadow-xl"
+              className="bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 p-6 rounded-xl border-2 border-gray-200 dark:border-gray-600 shadow-md hover:shadow-xl opacity-75"
             >
               <div className="flex items-center mb-4">
                 <motion.div
@@ -408,7 +408,8 @@ const Contact = () => {
                     aria-label="Call RoomTech"
                     className="text-roomtech-yellow hover:text-yellow-500 transition-colors"
                   >
-                    +253 77 08 09 80
+                    +253 77 08 09 80 <br />
+                    +253 77 25 77 77
                   </a>
                 </div>
               </div>

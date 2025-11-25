@@ -48,20 +48,6 @@ html.dark body {
   color: rgb(243, 244, 246);
 }
 
-/* Improved color contrast for accessibility */
-.text-gray-700 {
-  color: rgb(55, 65, 81) !important; /* Better contrast than default gray-700 */
-}
-
-.dark .text-gray-300 {
-  color: rgb(209, 213, 219) !important; /* Better contrast in dark mode */
-}
-
-.dark .text-gray-400 {
-  color: rgb(156, 163, 175) !important; /* Better contrast in dark mode */
-}
-
-
 /* Section spacing and visual separators */
 section {
   position: relative;

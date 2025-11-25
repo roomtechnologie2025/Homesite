@@ -106,7 +106,8 @@ const Footer = () => {
                   aria-label="Call RoomTech"
                   className="hover:text-roomtech-yellow transition-colors"
                 >
-                  +253 77 08 09 80
+                  +253 77 08 09 80 <br />
+                  +253 77 25 77 77
                 </a>
               </li>
             </ul>

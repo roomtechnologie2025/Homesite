@@ -50,4 +50,6 @@ class ErrorBoundary extends Component {
   }
 }
 
-export default withTranslation()(ErrorBoundary);
+const ErrorBoundaryWithTranslation = withTranslation()(ErrorBoundary);
+
+export default ErrorBoundaryWithTranslation;
