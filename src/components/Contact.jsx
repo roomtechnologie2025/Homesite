@@ -162,7 +162,7 @@ const Contact = () => {
                     errors.name
                       ? 'border-red-500 dark:border-red-400'
                       : 'border-gray-300 dark:border-gray-600'
-                  } bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-roomtech-yellow transition-colors`}
+                  } bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-roomtech-yellow focus:border-roomtech-yellow transition-all duration-200`}
                 />
                 {errors.name && (
                   <p id="name-error" className="mt-1 text-sm text-red-600 dark:text-red-400" role="alert">
@@ -193,7 +193,7 @@ const Contact = () => {
                     errors.email
                       ? 'border-red-500 dark:border-red-400'
                       : 'border-gray-300 dark:border-gray-600'
-                  } bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-roomtech-yellow transition-colors`}
+                  } bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-roomtech-yellow focus:border-roomtech-yellow transition-all duration-200`}
                 />
                 {errors.email && (
                   <p id="email-error" className="mt-1 text-sm text-red-600 dark:text-red-400" role="alert">
@@ -222,7 +222,7 @@ const Contact = () => {
                     errors.phone
                       ? 'border-red-500 dark:border-red-400'
                       : 'border-gray-300 dark:border-gray-600'
-                  } bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-roomtech-yellow transition-colors`}
+                  } bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-roomtech-yellow focus:border-roomtech-yellow transition-all duration-200`}
                 />
                 {errors.phone && (
                   <p id="phone-error" className="mt-1 text-sm text-red-600 dark:text-red-400" role="alert">
@@ -253,7 +253,7 @@ const Contact = () => {
                     errors.message
                       ? 'border-red-500 dark:border-red-400'
                       : 'border-gray-300 dark:border-gray-600'
-                  } bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-roomtech-yellow transition-colors resize-none`}
+                  } bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-roomtech-yellow focus:border-roomtech-yellow transition-all duration-200 resize-none`}
                 />
                 {errors.message && (
                   <p id="message-error" className="mt-1 text-sm text-red-600 dark:text-red-400" role="alert">

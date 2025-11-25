@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Wrench, Code, Rocket } from 'lucide-react';
+import { Wrench, Code, Rocket, Clock } from 'lucide-react';
 
 const Services = () => {
   const { t } = useTranslation();
@@ -33,7 +33,7 @@ const Services = () => {
       id="services"
       className="py-20 px-4 bg-gray-50 dark:bg-gray-800 animate-fade-in"
     >
-      <div className="container mx-auto">
+      <div className="container mx-auto max-w-7xl">
         <h2 className="text-4xl md:text-5xl font-bold text-center mb-16 text-gray-900 dark:text-white">
           {t('services.title')}
         </h2>
@@ -49,21 +49,22 @@ const Services = () => {
               return (
                 <div
                   key={index}
-                  className="bg-white dark:bg-gray-900 p-8 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border-2 border-roomtech-yellow"
+                  className="group bg-white dark:bg-gray-900 p-8 rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border-2 border-roomtech-yellow hover:border-roomtech-yellow/80"
                 >
                   <div className="flex justify-center mb-4">
-                    <div className="bg-roomtech-yellow p-4 rounded-full">
+                    <div className="bg-roomtech-yellow p-4 rounded-full group-hover:scale-110 group-hover:rotate-6 transition-transform duration-300">
                       <Icon className="text-roomtech-black" size={32} />
                     </div>
                   </div>
-                  <h4 className="text-xl font-semibold mb-3 text-center text-gray-900 dark:text-white">
+                  <h4 className="text-xl font-semibold mb-3 text-center text-gray-900 dark:text-white group-hover:text-roomtech-yellow transition-colors duration-300">
                     {service.title}
                   </h4>
                   <p className="text-gray-600 dark:text-gray-400 text-center">
                     {service.description}
                   </p>
                   <div className="mt-4 text-center">
-                    <span className="inline-block bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-3 py-1 rounded-full text-sm font-semibold">
+                    <span className="inline-flex items-center gap-1 bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-200 px-4 py-2 rounded-full text-sm font-semibold border border-green-300 dark:border-green-700">
+                      <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
                       Disponible
                     </span>
                   </div>
@@ -84,10 +85,10 @@ const Services = () => {
               return (
                 <div
                   key={index}
-                  className="bg-white dark:bg-gray-900 p-8 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border-2 border-gray-300 dark:border-gray-600 opacity-75"
+                  className="group bg-white dark:bg-gray-900 p-8 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border-2 border-gray-300 dark:border-gray-600 opacity-75 hover:opacity-90"
                 >
                   <div className="flex justify-center mb-4">
-                    <div className="bg-gray-300 dark:bg-gray-600 p-4 rounded-full">
+                    <div className="bg-gray-300 dark:bg-gray-600 p-4 rounded-full group-hover:scale-105 transition-transform duration-300">
                       <Icon className="text-gray-600 dark:text-gray-300" size={32} />
                     </div>
                   </div>
@@ -98,7 +99,8 @@ const Services = () => {
                     {service.description}
                   </p>
                   <div className="mt-4 text-center">
-                    <span className="inline-block bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-3 py-1 rounded-full text-sm font-semibold">
+                    <span className="inline-flex items-center gap-1 bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-200 px-4 py-2 rounded-full text-sm font-semibold border border-blue-300 dark:border-blue-700">
+                      <Clock size={14} />
                       Bientôt disponible
                     </span>
                   </div>

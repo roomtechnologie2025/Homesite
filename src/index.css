@@ -42,6 +42,14 @@ a:focus-visible {
   border-radius: 4px;
 }
 
+/* Better touch targets for mobile */
+@media (max-width: 768px) {
+  button, a {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
 body {
   background-color: white;
   color: rgb(17, 24, 39);
@@ -96,5 +104,44 @@ html.dark body {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+/* Section spacing and visual separators */
+section {
+  position: relative;
+}
+
+section::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 4px;
+  background: linear-gradient(90deg, transparent, var(--color-roomtech-yellow), transparent);
+  opacity: 0.3;
+}
+
+section:last-of-type::after {
+  display: none;
+}
+
+/* Max-width container for better readability */
+.container {
+  max-width: 1280px;
+}
+
+/* Improved section padding consistency */
+.section-padding {
+  padding-top: 5rem;
+  padding-bottom: 5rem;
+}
+
+@media (min-width: 768px) {
+  .section-padding {
+    padding-top: 6rem;
+    padding-bottom: 6rem;
   }
 }

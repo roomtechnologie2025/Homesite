@@ -27,7 +27,7 @@ const About = () => {
       id="about"
       className="py-20 px-4 bg-white dark:bg-gray-900 animate-fade-in"
     >
-      <div className="container mx-auto">
+      <div className="container mx-auto max-w-7xl">
         <h2 className="text-4xl md:text-5xl font-bold text-center mb-4 text-gray-900 dark:text-white">
           {t('about.title')}
         </h2>
