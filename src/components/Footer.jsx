@@ -12,7 +12,7 @@ const Footer = () => {
   };
 
   return (
-    <footer className="bg-gray-900 dark:bg-black text-gray-300 py-12 px-4">
+    <footer className="bg-gray-900 dark:bg-black text-gray-300 py-12 px-4" role="contentinfo">
       <div className="container mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
           {/* Logo et description */}
@@ -24,12 +24,13 @@ const Footer = () => {
           </div>
           
           {/* Liens rapides */}
-          <div>
+          <nav aria-label="Footer navigation">
             <h3 className="text-white font-semibold mb-4">Navigation</h3>
             <ul className="space-y-2">
               <li>
                 <button
                   onClick={() => scrollToSection('home')}
+                  aria-label={`Navigate to ${t('nav.home')} section`}
                   className="text-gray-400 hover:text-roomtech-yellow transition-colors"
                 >
                   {t('nav.home')}
@@ -38,6 +39,7 @@ const Footer = () => {
               <li>
                 <button
                   onClick={() => scrollToSection('about')}
+                  aria-label={`Navigate to ${t('nav.about')} section`}
                   className="text-gray-400 hover:text-roomtech-yellow transition-colors"
                 >
                   {t('nav.about')}
@@ -46,6 +48,7 @@ const Footer = () => {
               <li>
                 <button
                   onClick={() => scrollToSection('services')}
+                  aria-label={`Navigate to ${t('nav.services')} section`}
                   className="text-gray-400 hover:text-roomtech-yellow transition-colors"
                 >
                   {t('nav.services')}
@@ -54,13 +57,14 @@ const Footer = () => {
               <li>
                 <button
                   onClick={() => scrollToSection('contact')}
+                  aria-label={`Navigate to ${t('nav.contact')} section`}
                   className="text-gray-400 hover:text-roomtech-yellow transition-colors"
                 >
                   {t('nav.contact')}
                 </button>
               </li>
             </ul>
-          </div>
+          </nav>
           
           {/* Contact */}
           <div>
@@ -68,7 +72,8 @@ const Footer = () => {
             <ul className="space-y-2 text-gray-400">
               <li>
                 <a
-                  href="mailto:contact@roomtech.com"
+                  href="mailto:roomtechnologie2025@gmail.com"
+                  aria-label="Send email to RoomTech"
                   className="hover:text-roomtech-yellow transition-colors"
                 >
                   roomtechnologie2025@gmail.com
@@ -76,7 +81,8 @@ const Footer = () => {
               </li>
               <li>
                 <a
-                  href="tel:+33123456789"
+                  href="tel:+25377080980"
+                  aria-label="Call RoomTech"
                   className="hover:text-roomtech-yellow transition-colors"
                 >
                   +253 77 08 09 80

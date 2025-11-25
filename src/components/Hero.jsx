@@ -36,12 +36,13 @@ const Hero = () => {
         
         <button
           onClick={scrollToContact}
+          aria-label="Go to contact section"
           className="bg-roomtech-yellow hover:bg-yellow-500 text-roomtech-black font-semibold px-8 py-4 rounded-lg text-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
         >
           {t('hero.cta')}
         </button>
         
-        <div className="mt-16 animate-bounce">
+        <div className="mt-16 animate-bounce" aria-hidden="true">
           <ArrowDown className="mx-auto text-gray-400 dark:text-gray-500" size={32} />
         </div>
       </div>

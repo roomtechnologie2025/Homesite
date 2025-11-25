@@ -67,20 +67,22 @@ const Header = () => {
   ];
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-white/90 dark:bg-gray-900/90 backdrop-blur-md shadow-md">
-      <nav className="container mx-auto px-4 py-4">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-white/90 dark:bg-gray-900/90 backdrop-blur-md shadow-md" role="banner">
+      <nav className="container mx-auto px-4 py-4" aria-label="Main navigation">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <div onClick={() => scrollToSection('home')} className="cursor-pointer">
+          <div onClick={() => scrollToSection('home')} className="cursor-pointer" role="button" tabIndex={0} onKeyDown={(e) => e.key === 'Enter' && scrollToSection('home')} aria-label="Go to home">
             <Logo />
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-8">
+          <div className="hidden md:flex items-center gap-8" role="navigation" aria-label="Main menu">
             {navItems.map((item) => (
               <button
                 key={item.id}
                 onClick={() => scrollToSection(item.id)}
+                aria-label={`Navigate to ${t(item.key)} section`}
+                aria-current={activeSection === item.id ? 'page' : undefined}
                 className={`px-3 py-2 rounded-md transition-colors ${
                   activeSection === item.id
                     ? 'text-roomtech-yellow font-semibold'
@@ -96,15 +98,22 @@ const Header = () => {
           <div className="flex items-center gap-4">
             {/* Language Selector */}
             <div className="relative group">
-              <button className="flex items-center gap-2 px-3 py-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
-                <Globe size={20} />
+              <button 
+                className="flex items-center gap-2 px-3 py-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                aria-label="Select language"
+                aria-expanded="false"
+                aria-haspopup="true"
+              >
+                <Globe size={20} aria-hidden="true" />
                 <span className="hidden sm:inline">{i18n.language.toUpperCase()}</span>
               </button>
-              <div className="absolute right-0 mt-2 w-20 bg-white dark:bg-gray-800 rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+              <div className="absolute right-0 mt-2 w-20 bg-white dark:bg-gray-800 rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200" role="menu">
                 {languages.map((lang) => (
                   <button
                     key={lang.code}
                     onClick={() => changeLanguage(lang.code)}
+                    role="menuitem"
+                    aria-label={`Change language to ${lang.name}`}
                     className={`w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors ${
                       i18n.language === lang.code
                         ? 'text-roomtech-yellow font-semibold'
@@ -139,12 +148,14 @@ const Header = () => {
 
         {/* Mobile Navigation */}
         {isMenuOpen && (
-          <div className="md:hidden mt-4 pb-4 border-t border-gray-200 dark:border-gray-700">
+          <div className="md:hidden mt-4 pb-4 border-t border-gray-200 dark:border-gray-700" role="navigation" aria-label="Mobile menu">
             <div className="flex flex-col gap-2 mt-4">
               {navItems.map((item) => (
                 <button
                   key={item.id}
                   onClick={() => scrollToSection(item.id)}
+                  aria-label={`Navigate to ${t(item.key)} section`}
+                  aria-current={activeSection === item.id ? 'page' : undefined}
                   className={`px-4 py-2 rounded-md text-left transition-colors ${
                     activeSection === item.id
                       ? 'text-roomtech-yellow font-semibold bg-yellow-50 dark:bg-yellow-900/20'
