@@ -1,8 +1,10 @@
 import { useTranslation } from 'react-i18next';
 import { Wrench, Code, Rocket, Clock } from 'lucide-react';
+import { useScrollAnimation } from '../hooks/useScrollAnimation';
 
 const Services = () => {
   const { t } = useTranslation();
+  const [ref, isVisible] = useScrollAnimation({ threshold: 0.2 });
 
   const currentServices = [
     {
@@ -31,13 +33,16 @@ const Services = () => {
   return (
     <section
       id="services"
-      className="py-20 px-4 bg-gray-50 dark:bg-gray-800 animate-fade-in"
+      ref={ref}
+      className={`py-20 px-4 bg-gray-50 dark:bg-gray-800 transition-opacity duration-700 ${
+        isVisible ? 'opacity-100' : 'opacity-0'
+      }`}
     >
       <div className="container mx-auto max-w-7xl">
         <h2 className="text-4xl md:text-5xl font-bold text-center mb-16 text-gray-900 dark:text-white">
           {t('services.title')}
         </h2>
-        
+
         {/* Services actuels */}
         <div className="mb-16">
           <h3 className="text-2xl md:text-3xl font-semibold mb-8 text-gray-800 dark:text-gray-200">
@@ -49,10 +54,10 @@ const Services = () => {
               return (
                 <div
                   key={index}
-                  className="group bg-white dark:bg-gray-900 p-8 rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border-2 border-roomtech-yellow hover:border-roomtech-yellow/80"
+                  className="group bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 p-8 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border-2 border-roomtech-yellow hover:border-roomtech-yellow/80"
                 >
                   <div className="flex justify-center mb-4">
-                    <div className="bg-roomtech-yellow p-4 rounded-full group-hover:scale-110 group-hover:rotate-6 transition-transform duration-300">
+                    <div className="bg-gradient-to-br from-roomtech-yellow to-yellow-400 p-4 rounded-full group-hover:scale-110 group-hover:rotate-6 transition-transform duration-300 shadow-lg">
                       <Icon className="text-roomtech-black" size={32} />
                     </div>
                   </div>
@@ -73,7 +78,7 @@ const Services = () => {
             })}
           </div>
         </div>
-        
+
         {/* Services futurs */}
         <div>
           <h3 className="text-2xl md:text-3xl font-semibold mb-8 text-gray-800 dark:text-gray-200">
@@ -85,11 +90,14 @@ const Services = () => {
               return (
                 <div
                   key={index}
-                  className="group bg-white dark:bg-gray-900 p-8 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border-2 border-gray-300 dark:border-gray-600 opacity-75 hover:opacity-90"
+                  className="group bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 p-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border-2 border-gray-300 dark:border-gray-600 opacity-75 hover:opacity-90"
                 >
                   <div className="flex justify-center mb-4">
                     <div className="bg-gray-300 dark:bg-gray-600 p-4 rounded-full group-hover:scale-105 transition-transform duration-300">
-                      <Icon className="text-gray-600 dark:text-gray-300" size={32} />
+                      <Icon
+                        className="text-gray-600 dark:text-gray-300"
+                        size={32}
+                      />
                     </div>
                   </div>
                   <h4 className="text-xl font-semibold mb-3 text-center text-gray-900 dark:text-white">
@@ -115,4 +123,3 @@ const Services = () => {
 };
 
 export default Services;
-

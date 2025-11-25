@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Moon, Sun, Menu, X, Globe } from 'lucide-react';
 import { useTheme } from './ThemeProvider';
 import Logo from './Logo';
+import Tooltip from './Tooltip';
 
 const Header = () => {
   const { t, i18n } = useTranslation();
@@ -79,7 +80,7 @@ const Header = () => {
     <header
       className={`fixed top-0 left-0 right-0 z-50 backdrop-blur-md transition-all duration-300 ${
         isScrolled
-          ? 'bg-white/95 dark:bg-gray-900/95 shadow-lg'
+          ? 'bg-white/95 dark:bg-gray-900/95 shadow-lg glass'
           : 'bg-white/90 dark:bg-gray-900/90 shadow-md'
       }`}
       role="banner"
@@ -162,13 +163,21 @@ const Header = () => {
             </div>
 
             {/* Theme Toggle */}
-            <button
-              onClick={toggleTheme}
-              className="p-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-              aria-label="Toggle theme"
+            <Tooltip
+              text={
+                theme === 'dark'
+                  ? 'Switch to light mode'
+                  : 'Switch to dark mode'
+              }
             >
-              {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
-            </button>
+              <button
+                onClick={toggleTheme}
+                className="p-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                aria-label="Toggle theme"
+              >
+                {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+              </button>
+            </Tooltip>
 
             {/* Mobile Menu Button */}
             <button

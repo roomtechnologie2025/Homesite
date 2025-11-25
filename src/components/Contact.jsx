@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Mail, Phone, Send, CheckCircle2, Loader2 } from 'lucide-react';
+import { useScrollAnimation } from '../hooks/useScrollAnimation';
 
 const Contact = () => {
   const { t } = useTranslation();
+  const [ref, isVisible] = useScrollAnimation({ threshold: 0.2 });
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -16,7 +18,7 @@ const Contact = () => {
 
   const validateField = (name, value) => {
     let error = '';
-    
+
     switch (name) {
       case 'name':
         if (!value.trim()) {
@@ -47,7 +49,7 @@ const Contact = () => {
       default:
         break;
     }
-    
+
     return error;
   };
 
@@ -57,7 +59,7 @@ const Contact = () => {
       ...formData,
       [name]: value,
     });
-    
+
     // Real-time validation
     if (touched[name]) {
       const error = validateField(name, value);
@@ -74,7 +76,7 @@ const Contact = () => {
       ...touched,
       [name]: true,
     });
-    
+
     const error = validateField(name, value);
     setErrors({
       ...errors,
@@ -84,7 +86,7 @@ const Contact = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
+
     // Mark all fields as touched
     const allTouched = {
       name: true,
@@ -93,7 +95,7 @@ const Contact = () => {
       message: true,
     };
     setTouched(allTouched);
-    
+
     // Validate all fields
     const newErrors = {};
     Object.keys(formData).forEach((key) => {
@@ -102,15 +104,15 @@ const Contact = () => {
         newErrors[key] = error;
       }
     });
-    
+
     setErrors(newErrors);
-    
+
     // If there are errors, don't submit
     if (Object.keys(newErrors).length > 0) {
       setStatus('error');
       return;
     }
-    
+
     // Submit form
     setStatus('sending');
     setTimeout(() => {
@@ -125,17 +127,20 @@ const Contact = () => {
   return (
     <section
       id="contact"
-      className="py-20 px-4 bg-white dark:bg-gray-900 animate-fade-in"
+      ref={ref}
+      className={`py-20 px-4 bg-white dark:bg-gray-900 transition-opacity duration-700 ${
+        isVisible ? 'opacity-100' : 'opacity-0'
+      }`}
     >
       <div className="container mx-auto max-w-4xl">
         <h2 className="text-4xl md:text-5xl font-bold text-center mb-4 text-gray-900 dark:text-white">
           {t('contact.title')}
         </h2>
-        
+
         <p className="text-lg md:text-xl text-center mb-12 text-gray-600 dark:text-gray-400">
           {t('contact.subtitle')}
         </p>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
           {/* Formulaire */}
           <div>
@@ -165,12 +170,16 @@ const Contact = () => {
                   } bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-roomtech-yellow focus:border-roomtech-yellow transition-all duration-200`}
                 />
                 {errors.name && (
-                  <p id="name-error" className="mt-1 text-sm text-red-600 dark:text-red-400" role="alert">
+                  <p
+                    id="name-error"
+                    className="mt-1 text-sm text-red-600 dark:text-red-400"
+                    role="alert"
+                  >
                     {errors.name}
                   </p>
                 )}
               </div>
-              
+
               <div>
                 <label
                   htmlFor="email"
@@ -196,12 +205,16 @@ const Contact = () => {
                   } bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-roomtech-yellow focus:border-roomtech-yellow transition-all duration-200`}
                 />
                 {errors.email && (
-                  <p id="email-error" className="mt-1 text-sm text-red-600 dark:text-red-400" role="alert">
+                  <p
+                    id="email-error"
+                    className="mt-1 text-sm text-red-600 dark:text-red-400"
+                    role="alert"
+                  >
                     {errors.email}
                   </p>
                 )}
               </div>
-              
+
               <div>
                 <label
                   htmlFor="phone"
@@ -225,12 +238,16 @@ const Contact = () => {
                   } bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-roomtech-yellow focus:border-roomtech-yellow transition-all duration-200`}
                 />
                 {errors.phone && (
-                  <p id="phone-error" className="mt-1 text-sm text-red-600 dark:text-red-400" role="alert">
+                  <p
+                    id="phone-error"
+                    className="mt-1 text-sm text-red-600 dark:text-red-400"
+                    role="alert"
+                  >
                     {errors.phone}
                   </p>
                 )}
               </div>
-              
+
               <div>
                 <label
                   htmlFor="message"
@@ -248,7 +265,9 @@ const Contact = () => {
                   rows="5"
                   aria-required="true"
                   aria-invalid={errors.message ? 'true' : 'false'}
-                  aria-describedby={errors.message ? 'message-error' : undefined}
+                  aria-describedby={
+                    errors.message ? 'message-error' : undefined
+                  }
                   className={`w-full px-4 py-3 rounded-lg border ${
                     errors.message
                       ? 'border-red-500 dark:border-red-400'
@@ -256,12 +275,16 @@ const Contact = () => {
                   } bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-roomtech-yellow focus:border-roomtech-yellow transition-all duration-200 resize-none`}
                 />
                 {errors.message && (
-                  <p id="message-error" className="mt-1 text-sm text-red-600 dark:text-red-400" role="alert">
+                  <p
+                    id="message-error"
+                    className="mt-1 text-sm text-red-600 dark:text-red-400"
+                    role="alert"
+                  >
                     {errors.message}
                   </p>
                 )}
               </div>
-              
+
               <button
                 type="submit"
                 disabled={status === 'sending'}
@@ -270,7 +293,11 @@ const Contact = () => {
               >
                 {status === 'sending' ? (
                   <>
-                    <Loader2 size={20} className="animate-spin" aria-hidden="true" />
+                    <Loader2
+                      size={20}
+                      className="animate-spin"
+                      aria-hidden="true"
+                    />
                     {t('contact.form.sending')}
                   </>
                 ) : (
@@ -280,22 +307,30 @@ const Contact = () => {
                   </>
                 )}
               </button>
-              
+
               {status === 'success' && (
-                <div className="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-4 py-3 rounded-lg flex items-center gap-2" role="alert" aria-live="polite">
+                <div
+                  className="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-4 py-3 rounded-lg flex items-center gap-2"
+                  role="alert"
+                  aria-live="polite"
+                >
                   <CheckCircle2 size={20} aria-hidden="true" />
                   {t('contact.form.success')}
                 </div>
               )}
-              
+
               {status === 'error' && Object.keys(errors).length > 0 && (
-                <div className="bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 px-4 py-3 rounded-lg" role="alert" aria-live="assertive">
+                <div
+                  className="bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 px-4 py-3 rounded-lg"
+                  role="alert"
+                  aria-live="assertive"
+                >
                   {t('contact.form.error')}
                 </div>
               )}
             </form>
           </div>
-          
+
           {/* Informations de contact */}
           <div className="flex flex-col justify-center space-y-8">
             <div className="bg-gray-50 dark:bg-gray-800 p-6 rounded-lg shadow-lg">
@@ -317,7 +352,7 @@ const Contact = () => {
                 </div>
               </div>
             </div>
-            
+
             <div className="bg-gray-50 dark:bg-gray-800 p-6 rounded-lg shadow-lg">
               <div className="flex items-center mb-4">
                 <div className="bg-roomtech-yellow p-3 rounded-full mr-4">
@@ -345,4 +380,3 @@ const Contact = () => {
 };
 
 export default Contact;
-
