@@ -8,6 +8,7 @@ const Header = () => {
   const { t, i18n } = useTranslation();
   const { theme, toggleTheme } = useTheme();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isLanguageMenuOpen, setIsLanguageMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
   const [isScrolled, setIsScrolled] = useState(false);
 
@@ -21,6 +22,7 @@ const Header = () => {
     i18n.changeLanguage(langCode);
     // Explicitly save to localStorage to match the detector's lookupLocalStorage key
     localStorage.setItem('language', langCode);
+    setIsLanguageMenuOpen(false); // Fermer le menu après sélection
   };
 
   useEffect(() => {
@@ -118,11 +120,16 @@ const Header = () => {
           {/* Controls */}
           <div className="flex items-center gap-4">
             {/* Language Selector */}
-            <div className="relative group">
+            <div className="relative">
               <button
-                className="flex items-center gap-2 px-3 py-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                onClick={() => setIsLanguageMenuOpen(!isLanguageMenuOpen)}
+                onBlur={() => {
+                  // Fermer le menu après un court délai pour permettre le clic sur les options
+                  setTimeout(() => setIsLanguageMenuOpen(false), 200);
+                }}
+                className="flex items-center gap-2 px-3 py-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 active:bg-gray-200 dark:active:bg-gray-700 transition-colors touch-manipulation"
                 aria-label="Select language"
-                aria-expanded="false"
+                aria-expanded={isLanguageMenuOpen}
                 aria-haspopup="true"
               >
                 <Globe size={20} aria-hidden="true" />
@@ -131,16 +138,21 @@ const Header = () => {
                 </span>
               </button>
               <div
-                className="absolute right-0 mt-2 w-20 bg-white dark:bg-gray-800 rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 border border-gray-200 dark:border-gray-700"
+                className={`absolute right-0 mt-2 w-20 bg-white dark:bg-gray-800 rounded-md shadow-lg border border-gray-200 dark:border-gray-700 transition-all duration-300 z-50 ${
+                  isLanguageMenuOpen
+                    ? 'opacity-100 visible'
+                    : 'opacity-0 invisible pointer-events-none'
+                }`}
                 role="menu"
               >
                 {languages.map((lang) => (
                   <button
                     key={lang.code}
                     onClick={() => changeLanguage(lang.code)}
+                    onTouchStart={() => changeLanguage(lang.code)}
                     role="menuitem"
                     aria-label={`Change language to ${lang.name}`}
-                    className={`w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors ${
+                    className={`w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 active:bg-gray-200 dark:active:bg-gray-600 rounded-md transition-colors touch-manipulation ${
                       i18n.language === lang.code
                         ? 'text-roomtech-yellow font-semibold'
                         : 'text-gray-700 dark:text-gray-300'
