@@ -71,7 +71,8 @@
       "send": "Dir",
       "sending": "Waa la dirirayaa...",
       "success": "Fariinta si guul leh ayaa loo diray!",
-      "error": "Qalad ayaa dhacay. Fadlan isku day mar kale."
+      "error": "Qalad ayaa dhacay. Fadlan isku day mar kale.",
+      "networkError": "Qaladka isku xirka. Fadlan hubi isku xirkaaga internetka oo isku day mar kale."
     },
     "info": {
       "email": "Email",

@@ -76,14 +76,15 @@
     "title": "Contactez-nous",
     "subtitle": "N'hésitez pas à nous contacter pour toute question ou demande",
     "form": {
-      "name": "Nom",
+      "name": "Nom Complete",
       "email": "Email",
       "phone": "Téléphone",
       "message": "Message",
       "send": "Envoyer",
       "sending": "Envoi en cours...",
       "success": "Message envoyé avec succès !",
-      "error": "Une erreur est survenue. Veuillez réessayer."
+      "error": "Une erreur est survenue. Veuillez réessayer.",
+      "networkError": "Erreur de connexion. Veuillez vérifier votre connexion internet et réessayer."
     },
     "info": {
       "email": "Email",

@@ -94,7 +94,7 @@ const Contact = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     // Mark all fields as touched
@@ -123,15 +123,87 @@ const Contact = () => {
       return;
     }
 
-    // Submit form
+    // Submit form to PHP script
     setStatus('sending');
-    setTimeout(() => {
-      setStatus('success');
-      setFormData({ name: '', email: '', phone: '', message: '' });
-      setErrors({});
-      setTouched({});
-      setTimeout(() => setStatus(null), 3000);
-    }, 1000);
+    
+    try {
+      // Utiliser l'URL complète ou relative selon l'environnement
+      // En développement, utiliser VITE_API_URL si défini, sinon essayer localhost:8000
+      // En production, utiliser le chemin relatif
+      const isDevelopment = import.meta.env.DEV || !import.meta.env.PROD;
+      const apiUrl = isDevelopment 
+        ? (import.meta.env.VITE_API_URL || 'http://localhost:8000/contact.php')
+        : '/contact.php';
+      
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          company: formData.phone || '', // Utiliser phone comme company ou laisser vide
+          message: formData.message,
+        }),
+      });
+
+      // Vérifier si la réponse est OK
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      // Essayer de parser le JSON
+      let data;
+      try {
+        const text = await response.text();
+        data = JSON.parse(text);
+      } catch (parseError) {
+        console.error('Erreur de parsing JSON:', parseError);
+        throw new Error('Réponse invalide du serveur');
+      }
+
+      if (data.success) {
+        setStatus('success');
+        setFormData({ name: '', email: '', phone: '', message: '' });
+        setErrors({});
+        setTouched({});
+        // Le message de succès sera affiché pendant 5 secondes
+        setTimeout(() => setStatus(null), 5000);
+      } else {
+        setStatus('error');
+        setErrors({ submit: data.error || t('contact.form.error') });
+        setTimeout(() => {
+          setStatus(null);
+          setErrors({});
+        }, 5000);
+      }
+    } catch (error) {
+      console.error('Erreur lors de l\'envoi du formulaire:', error);
+      console.error('Détails de l\'erreur:', {
+        message: error.message,
+        stack: error.stack,
+        name: error.name
+      });
+      
+      let errorMessage = t('contact.form.networkError') || 'Erreur de connexion. Veuillez réessayer.';
+      
+      // Messages d'erreur plus spécifiques
+      if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+        errorMessage = 'Impossible de contacter le serveur. Vérifiez que le serveur PHP est démarré et que contact.php est accessible.';
+      } else if (error.message.includes('HTTP error')) {
+        errorMessage = 'Erreur serveur. Veuillez réessayer plus tard.';
+      } else if (error.message.includes('JSON')) {
+        errorMessage = 'Erreur de traitement. Veuillez réessayer.';
+      }
+      
+      setStatus('error');
+      setErrors({ submit: errorMessage });
+      setTimeout(() => {
+        setStatus(null);
+        setErrors({});
+      }, 5000);
+    }
   };
 
   return (
@@ -327,13 +399,13 @@ const Contact = () => {
                 </div>
               )}
 
-              {status === 'error' && Object.keys(errors).length > 0 && (
+              {status === 'error' && (
                 <div
                   className="bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 px-4 py-3 rounded-lg"
                   role="alert"
                   aria-live="assertive"
                 >
-                  {t('contact.form.error')}
+                  {errors.submit || t('contact.form.error')}
                 </div>
               )}
             </form>

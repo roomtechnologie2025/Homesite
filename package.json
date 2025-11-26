@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "php:server": "cd public && php -S localhost:8000",
+    "dev:full": "concurrently \"npm run php:server\" \"npm run dev\""
   },
   "dependencies": {
     "framer-motion": "^12.23.24",
