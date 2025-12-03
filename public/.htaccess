@@ -1,4 +1,4 @@
-# Configuration Apache pour RoomTech
+# Configuration Apache pour RoomTech (SPA Routing)
 # Assurez-vous que mod_rewrite est activé
 
 # Activer le moteur de réécriture
@@ -8,27 +8,14 @@
   # Rediriger toutes les requêtes vers index.html sauf pour les fichiers existants
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
-  RewriteCond %{REQUEST_URI} !^/contact\.php
-  RewriteCond %{REQUEST_URI} !^/test-contact\.php
   RewriteRule ^ index.html [L]
 </IfModule>
-
-# Autoriser l'exécution des scripts PHP
-<FilesMatch "\.php$">
-  SetHandler application/x-httpd-php
-</FilesMatch>
 
 # Headers de sécurité
 <IfModule mod_headers.c>
   Header set Access-Control-Allow-Origin "*"
   Header set Access-Control-Allow-Methods "GET, POST, OPTIONS"
   Header set Access-Control-Allow-Headers "Content-Type"
-</IfModule>
-
-# Désactiver l'affichage des erreurs en production
-<IfModule mod_php7.c>
-  php_flag display_errors Off
-  php_flag log_errors On
 </IfModule>
 
 

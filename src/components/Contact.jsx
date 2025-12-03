@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Mail,
@@ -11,6 +11,8 @@ import {
 } from 'lucide-react';
 import { motion, useInView } from 'framer-motion';
 import { useRef } from 'react';
+import emailjs from '@emailjs/browser';
+import { emailjsConfig, isEmailjsConfigured } from '../config/emailjs';
 
 const Contact = () => {
   const { t } = useTranslation();
@@ -25,6 +27,13 @@ const Contact = () => {
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
   const [status, setStatus] = useState(null);
+
+  // Initialiser EmailJS une seule fois au chargement du composant
+  useEffect(() => {
+    if (isEmailjsConfigured()) {
+      emailjs.init(emailjsConfig.publicKey);
+    }
+  }, []);
 
   const validateField = (name, value) => {
     let error = '';
@@ -123,47 +132,41 @@ const Contact = () => {
       return;
     }
 
-    // Submit form to PHP script
+    // Vérifier que EmailJS est configuré
+    if (!isEmailjsConfigured()) {
+      setStatus('error');
+      setErrors({ 
+        submit: 'EmailJS n\'est pas configuré. Veuillez contacter l\'administrateur.' 
+      });
+      setTimeout(() => {
+        setStatus(null);
+        setErrors({});
+      }, 5000);
+      return;
+    }
+
+    // Submit form via EmailJS
     setStatus('sending');
     
     try {
-      // Utiliser l'URL complète ou relative selon l'environnement
-      // En développement, utiliser VITE_API_URL si défini, sinon essayer localhost:8000
-      // En production, utiliser le chemin relatif
-      const isDevelopment = import.meta.env.DEV || !import.meta.env.PROD;
-      const apiUrl = isDevelopment 
-        ? (import.meta.env.VITE_API_URL || 'http://localhost:8000/contact.php')
-        : '/contact.php';
-      
-      const response = await fetch(apiUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: formData.name,
-          email: formData.email,
-          company: formData.phone || '', // Utiliser phone comme company ou laisser vide
-          message: formData.message,
-        }),
-      });
+      // Préparer les paramètres du template
+      const templateParams = {
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone || 'Non communiqué',
+        message: formData.message,
+      };
 
-      // Vérifier si la réponse est OK
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
+      // Envoyer l'email via EmailJS
+      const response = await emailjs.send(
+        emailjsConfig.serviceId,
+        emailjsConfig.templateId,
+        templateParams,
+        emailjsConfig.publicKey // Passer la clé publique directement
+      );
 
-      // Essayer de parser le JSON
-      let data;
-      try {
-        const text = await response.text();
-        data = JSON.parse(text);
-      } catch (parseError) {
-        console.error('Erreur de parsing JSON:', parseError);
-        throw new Error('Réponse invalide du serveur');
-      }
-
-      if (data.success) {
+      // EmailJS retourne un statut 200 si l'envoi est réussi
+      if (response.status === 200) {
         setStatus('success');
         setFormData({ name: '', email: '', phone: '', message: '' });
         setErrors({});
@@ -171,30 +174,27 @@ const Contact = () => {
         // Le message de succès sera affiché pendant 5 secondes
         setTimeout(() => setStatus(null), 5000);
       } else {
-        setStatus('error');
-        setErrors({ submit: data.error || t('contact.form.error') });
-        setTimeout(() => {
-          setStatus(null);
-          setErrors({});
-        }, 5000);
+        throw new Error('Erreur lors de l\'envoi de l\'email');
       }
     } catch (error) {
       console.error('Erreur lors de l\'envoi du formulaire:', error);
-      console.error('Détails de l\'erreur:', {
-        message: error.message,
-        stack: error.stack,
-        name: error.name
-      });
       
-      let errorMessage = t('contact.form.networkError') || 'Erreur de connexion. Veuillez réessayer.';
+      let errorMessage = t('contact.form.error') || 'Erreur lors de l\'envoi. Veuillez réessayer.';
       
-      // Messages d'erreur plus spécifiques
-      if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
-        errorMessage = 'Impossible de contacter le serveur. Vérifiez que le serveur PHP est démarré et que contact.php est accessible.';
-      } else if (error.message.includes('HTTP error')) {
-        errorMessage = 'Erreur serveur. Veuillez réessayer plus tard.';
-      } else if (error.message.includes('JSON')) {
-        errorMessage = 'Erreur de traitement. Veuillez réessayer.';
+      // Messages d'erreur plus spécifiques selon le type d'erreur EmailJS
+      if (error.text) {
+        // Erreur retournée par EmailJS
+        if (error.text.includes('Invalid template ID')) {
+          errorMessage = 'Configuration EmailJS incorrecte. Veuillez contacter l\'administrateur.';
+        } else if (error.text.includes('Invalid service ID')) {
+          errorMessage = 'Configuration EmailJS incorrecte. Veuillez contacter l\'administrateur.';
+        } else if (error.text.includes('Invalid public key')) {
+          errorMessage = 'Configuration EmailJS incorrecte. Veuillez contacter l\'administrateur.';
+        } else {
+          errorMessage = error.text;
+        }
+      } else if (error.message) {
+        errorMessage = error.message;
       }
       
       setStatus('error');
