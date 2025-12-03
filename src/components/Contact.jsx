@@ -1,5 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import {
   Mail,
   Phone,
@@ -8,25 +11,113 @@ import {
   Loader2,
   Github,
   Instagram,
+  AlertCircle,
 } from 'lucide-react';
 import { motion, useInView } from 'framer-motion';
 import { useRef } from 'react';
 import emailjs from '@emailjs/browser';
 import { emailjsConfig, isEmailjsConfigured } from '../config/emailjs';
 
+// Helper function to get error messages with fallback
+const getErrorMessage = (t, key, fallback) => {
+  const message = t(key);
+  return message && message !== key ? message : fallback;
+};
+
 const Contact = () => {
   const { t } = useTranslation();
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.2 });
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    message: '',
-  });
-  const [errors, setErrors] = useState({});
-  const [touched, setTouched] = useState({});
   const [status, setStatus] = useState(null);
+  const [submitError, setSubmitError] = useState('');
+
+  // Create Zod schema with translated error messages (memoized to avoid recreation on every render)
+  const contactSchema = useMemo(
+    () =>
+      z.object({
+        name: z
+          .string()
+          .min(
+            1,
+            getErrorMessage(
+              t,
+              'contact.validation.nameRequired',
+              'Le nom est requis'
+            )
+          )
+          .min(
+            2,
+            getErrorMessage(
+              t,
+              'contact.validation.nameMinLength',
+              'Le nom doit contenir au moins 2 caractères'
+            )
+          )
+          .max(100, 'Le nom ne peut pas dépasser 100 caractères')
+          .trim(),
+        email: z
+          .email(
+            getErrorMessage(
+              t,
+              'contact.validation.emailInvalid',
+              "L'email n'est pas valide"
+            )
+          )
+          .max(255, "L'email ne peut pas dépasser 255 caractères")
+          .toLowerCase()
+          .trim(),
+        phone: z
+          .string()
+          .optional()
+          .refine(
+            (val) => !val || /^[\d\s\-\+\(\)]+$/.test(val),
+            getErrorMessage(
+              t,
+              'contact.validation.phoneInvalid',
+              "Le numéro de téléphone n'est pas valide"
+            )
+          )
+          .transform((val) => val?.trim() || ''),
+        message: z
+          .string()
+          .min(
+            1,
+            getErrorMessage(
+              t,
+              'contact.validation.messageRequired',
+              'Le message est requis'
+            )
+          )
+          .min(
+            10,
+            getErrorMessage(
+              t,
+              'contact.validation.messageMinLength',
+              'Le message doit contenir au moins 10 caractères'
+            )
+          )
+          .max(2000, 'Le message ne peut pas dépasser 2000 caractères')
+          .trim(),
+      }),
+    [t]
+  );
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    reset,
+    setError,
+  } = useForm({
+    resolver: zodResolver(contactSchema),
+    mode: 'onBlur', // Validate on blur for better UX
+    defaultValues: {
+      name: '',
+      email: '',
+      phone: '',
+      message: '',
+    },
+  });
 
   // Initialiser EmailJS une seule fois au chargement du composant
   useEffect(() => {
@@ -35,126 +126,88 @@ const Contact = () => {
     }
   }, []);
 
-  const validateField = (name, value) => {
-    let error = '';
+  // Helper function to get EmailJS error message
+  const getEmailJSErrorMessage = (error) => {
+    // Check for EmailJS specific error codes
+    if (error?.text) {
+      const errorText = error.text.toLowerCase();
 
-    switch (name) {
-      case 'name':
-        if (!value.trim()) {
-          error = t('contact.validation.nameRequired');
-        } else if (value.trim().length < 2) {
-          error = t('contact.validation.nameMinLength');
-        }
-        break;
-      case 'email':
-        if (!value.trim()) {
-          error = t('contact.validation.emailRequired');
-        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-          error = t('contact.validation.emailInvalid');
-        }
-        break;
-      case 'phone':
-        if (value && !/^[\d\s\-\+\(\)]+$/.test(value)) {
-          error = t('contact.validation.phoneInvalid');
-        }
-        break;
-      case 'message':
-        if (!value.trim()) {
-          error = t('contact.validation.messageRequired');
-        } else if (value.trim().length < 10) {
-          error = t('contact.validation.messageMinLength');
-        }
-        break;
-      default:
-        break;
-    }
-
-    return error;
-  };
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
-
-    // Real-time validation
-    if (touched[name]) {
-      const error = validateField(name, value);
-      setErrors({
-        ...errors,
-        [name]: error,
-      });
-    }
-  };
-
-  const handleBlur = (e) => {
-    const { name, value } = e.target;
-    setTouched({
-      ...touched,
-      [name]: true,
-    });
-
-    const error = validateField(name, value);
-    setErrors({
-      ...errors,
-      [name]: error,
-    });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    // Mark all fields as touched
-    const allTouched = {
-      name: true,
-      email: true,
-      phone: true,
-      message: true,
-    };
-    setTouched(allTouched);
-
-    // Validate all fields
-    const newErrors = {};
-    Object.keys(formData).forEach((key) => {
-      const error = validateField(key, formData[key]);
-      if (error) {
-        newErrors[key] = error;
+      if (
+        errorText.includes('invalid template id') ||
+        errorText.includes('template')
+      ) {
+        return "Configuration EmailJS incorrecte (Template ID invalide). Veuillez contacter l'administrateur.";
       }
-    });
+      if (
+        errorText.includes('invalid service id') ||
+        errorText.includes('service')
+      ) {
+        return "Configuration EmailJS incorrecte (Service ID invalide). Veuillez contacter l'administrateur.";
+      }
+      if (
+        errorText.includes('invalid public key') ||
+        errorText.includes('public key') ||
+        errorText.includes('api key')
+      ) {
+        return "Configuration EmailJS incorrecte (Clé publique invalide). Veuillez contacter l'administrateur.";
+      }
+      if (errorText.includes('quota') || errorText.includes('limit')) {
+        return "Limite d'envoi d'emails atteinte. Veuillez réessayer plus tard ou contacter l'administrateur.";
+      }
+      if (errorText.includes('network') || errorText.includes('connection')) {
+        return 'Erreur de connexion. Vérifiez votre connexion internet et réessayez.';
+      }
 
-    setErrors(newErrors);
-
-    // If there are errors, don't submit
-    if (Object.keys(newErrors).length > 0) {
-      setStatus('error');
-      return;
+      return error.text;
     }
+
+    if (error?.message) {
+      return error.message;
+    }
+
+    if (error?.status) {
+      return `Erreur ${error.status}: ${
+        error.text || "Erreur lors de l'envoi de l'email"
+      }`;
+    }
+
+    return getErrorMessage(
+      t,
+      'contact.form.error',
+      "Erreur lors de l'envoi. Veuillez réessayer."
+    );
+  };
+
+  const onSubmit = async (data) => {
+    // Reset previous errors
+    setSubmitError('');
+    setStatus(null);
 
     // Vérifier que EmailJS est configuré
     if (!isEmailjsConfigured()) {
+      const errorMsg =
+        "EmailJS n'est pas configuré. Veuillez contacter l'administrateur.";
+      setSubmitError(errorMsg);
       setStatus('error');
-      setErrors({ 
-        submit: 'EmailJS n\'est pas configuré. Veuillez contacter l\'administrateur.' 
-      });
+      setError('root', { message: errorMsg });
       setTimeout(() => {
         setStatus(null);
-        setErrors({});
+        setSubmitError('');
       }, 5000);
       return;
     }
 
-    // Submit form via EmailJS
     setStatus('sending');
-    
+
     try {
       // Préparer les paramètres du template
       const templateParams = {
-        name: formData.name,
-        email: formData.email,
-        phone: formData.phone || 'Non communiqué',
-        message: formData.message,
+        name: data.name,
+        email: data.email,
+        phone: data.phone || 'Non communiqué',
+        message: data.message,
+        from_name: data.name,
+        reply_to: data.email,
       };
 
       // Envoyer l'email via EmailJS
@@ -162,47 +215,32 @@ const Contact = () => {
         emailjsConfig.serviceId,
         emailjsConfig.templateId,
         templateParams,
-        emailjsConfig.publicKey // Passer la clé publique directement
+        emailjsConfig.publicKey
       );
 
       // EmailJS retourne un statut 200 si l'envoi est réussi
-      if (response.status === 200) {
+      if (response.status === 200 || response.text === 'OK') {
         setStatus('success');
-        setFormData({ name: '', email: '', phone: '', message: '' });
-        setErrors({});
-        setTouched({});
+        reset(); // Reset form using react-hook-form
         // Le message de succès sera affiché pendant 5 secondes
         setTimeout(() => setStatus(null), 5000);
       } else {
-        throw new Error('Erreur lors de l\'envoi de l\'email');
+        throw new Error(
+          `Erreur lors de l'envoi: ${response.status} - ${response.text}`
+        );
       }
     } catch (error) {
-      console.error('Erreur lors de l\'envoi du formulaire:', error);
-      
-      let errorMessage = t('contact.form.error') || 'Erreur lors de l\'envoi. Veuillez réessayer.';
-      
-      // Messages d'erreur plus spécifiques selon le type d'erreur EmailJS
-      if (error.text) {
-        // Erreur retournée par EmailJS
-        if (error.text.includes('Invalid template ID')) {
-          errorMessage = 'Configuration EmailJS incorrecte. Veuillez contacter l\'administrateur.';
-        } else if (error.text.includes('Invalid service ID')) {
-          errorMessage = 'Configuration EmailJS incorrecte. Veuillez contacter l\'administrateur.';
-        } else if (error.text.includes('Invalid public key')) {
-          errorMessage = 'Configuration EmailJS incorrecte. Veuillez contacter l\'administrateur.';
-        } else {
-          errorMessage = error.text;
-        }
-      } else if (error.message) {
-        errorMessage = error.message;
-      }
-      
+      console.error("Erreur lors de l'envoi du formulaire:", error);
+
+      const errorMessage = getEmailJSErrorMessage(error);
+      setSubmitError(errorMessage);
       setStatus('error');
-      setErrors({ submit: errorMessage });
+      setError('root', { message: errorMessage });
+
       setTimeout(() => {
         setStatus(null);
-        setErrors({});
-      }, 5000);
+        setSubmitError('');
+      }, 8000); // Show error for 8 seconds
     }
   };
 
@@ -224,22 +262,25 @@ const Contact = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
           {/* Formulaire */}
           <div>
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form
+              onSubmit={handleSubmit(onSubmit)}
+              className="space-y-6"
+              noValidate
+            >
               <div>
                 <label
                   htmlFor="name"
                   className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300"
                 >
                   {t('contact.form.name')}
+                  <span className="text-red-500 ml-1" aria-label="required">
+                    *
+                  </span>
                 </label>
                 <input
                   type="text"
                   id="name"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  required
+                  {...register('name')}
                   aria-required="true"
                   aria-invalid={errors.name ? 'true' : 'false'}
                   aria-describedby={errors.name ? 'name-error' : undefined}
@@ -252,10 +293,11 @@ const Contact = () => {
                 {errors.name && (
                   <p
                     id="name-error"
-                    className="mt-1 text-sm text-red-600 dark:text-red-400"
+                    className="mt-1 text-sm text-red-600 dark:text-red-400 flex items-center gap-1"
                     role="alert"
                   >
-                    {errors.name}
+                    <AlertCircle size={14} aria-hidden="true" />
+                    {errors.name.message}
                   </p>
                 )}
               </div>
@@ -266,15 +308,14 @@ const Contact = () => {
                   className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300"
                 >
                   {t('contact.form.email')}
+                  <span className="text-red-500 ml-1" aria-label="required">
+                    *
+                  </span>
                 </label>
                 <input
                   type="email"
                   id="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  required
+                  {...register('email')}
                   aria-required="true"
                   aria-invalid={errors.email ? 'true' : 'false'}
                   aria-describedby={errors.email ? 'email-error' : undefined}
@@ -287,10 +328,11 @@ const Contact = () => {
                 {errors.email && (
                   <p
                     id="email-error"
-                    className="mt-1 text-sm text-red-600 dark:text-red-400"
+                    className="mt-1 text-sm text-red-600 dark:text-red-400 flex items-center gap-1"
                     role="alert"
                   >
-                    {errors.email}
+                    <AlertCircle size={14} aria-hidden="true" />
+                    {errors.email.message}
                   </p>
                 )}
               </div>
@@ -301,14 +343,14 @@ const Contact = () => {
                   className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300"
                 >
                   {t('contact.form.phone')}
+                  <span className="text-gray-400 text-xs ml-1">
+                    (optionnel)
+                  </span>
                 </label>
                 <input
                   type="tel"
                   id="phone"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
+                  {...register('phone')}
                   aria-invalid={errors.phone ? 'true' : 'false'}
                   aria-describedby={errors.phone ? 'phone-error' : undefined}
                   className={`w-full px-4 py-3 rounded-lg border ${
@@ -320,10 +362,11 @@ const Contact = () => {
                 {errors.phone && (
                   <p
                     id="phone-error"
-                    className="mt-1 text-sm text-red-600 dark:text-red-400"
+                    className="mt-1 text-sm text-red-600 dark:text-red-400 flex items-center gap-1"
                     role="alert"
                   >
-                    {errors.phone}
+                    <AlertCircle size={14} aria-hidden="true" />
+                    {errors.phone.message}
                   </p>
                 )}
               </div>
@@ -334,14 +377,13 @@ const Contact = () => {
                   className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300"
                 >
                   {t('contact.form.message')}
+                  <span className="text-red-500 ml-1" aria-label="required">
+                    *
+                  </span>
                 </label>
                 <textarea
                   id="message"
-                  name="message"
-                  value={formData.message}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  required
+                  {...register('message')}
                   rows="5"
                   aria-required="true"
                   aria-invalid={errors.message ? 'true' : 'false'}
@@ -357,21 +399,34 @@ const Contact = () => {
                 {errors.message && (
                   <p
                     id="message-error"
-                    className="mt-1 text-sm text-red-600 dark:text-red-400"
+                    className="mt-1 text-sm text-red-600 dark:text-red-400 flex items-center gap-1"
                     role="alert"
                   >
-                    {errors.message}
+                    <AlertCircle size={14} aria-hidden="true" />
+                    {errors.message.message}
                   </p>
                 )}
               </div>
 
+              {/* Root error (for submit errors) */}
+              {errors.root && (
+                <div
+                  className="bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 px-4 py-3 rounded-lg flex items-center gap-2"
+                  role="alert"
+                  aria-live="assertive"
+                >
+                  <AlertCircle size={20} aria-hidden="true" />
+                  {errors.root.message}
+                </div>
+              )}
+
               <button
                 type="submit"
-                disabled={status === 'sending'}
+                disabled={isSubmitting || status === 'sending'}
                 aria-label="Submit contact form"
                 className="w-full bg-roomtech-yellow hover:bg-yellow-500 text-roomtech-black font-semibold px-6 py-3 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-2"
               >
-                {status === 'sending' ? (
+                {isSubmitting || status === 'sending' ? (
                   <>
                     <Loader2
                       size={20}
@@ -389,24 +444,33 @@ const Contact = () => {
               </button>
 
               {status === 'success' && (
-                <div
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
                   className="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-4 py-3 rounded-lg flex items-center gap-2"
                   role="alert"
                   aria-live="polite"
                 >
                   <CheckCircle2 size={20} aria-hidden="true" />
                   {t('contact.form.success')}
-                </div>
+                </motion.div>
               )}
 
-              {status === 'error' && (
-                <div
-                  className="bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 px-4 py-3 rounded-lg"
+              {status === 'error' && submitError && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 px-4 py-3 rounded-lg flex items-start gap-2"
                   role="alert"
                   aria-live="assertive"
                 >
-                  {errors.submit || t('contact.form.error')}
-                </div>
+                  <AlertCircle
+                    size={20}
+                    className="mt-0.5 flex-shrink-0"
+                    aria-hidden="true"
+                  />
+                  <span>{submitError}</span>
+                </motion.div>
               )}
             </form>
           </div>
